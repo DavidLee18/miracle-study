@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:miracle_study/layout/compact_layout.dart';
 import 'package:miracle_study/layout/expanded_layout.dart';
+import 'package:miracle_study/login.dart';
 
 void main() {
   runApp(MainApp(
@@ -22,12 +23,12 @@ class MainApp extends StatelessWidget {
   final ThemeData darkTheme;
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
-      theme: lightTheme,
-      darkTheme: darkTheme,
-      home: LayoutBuilder(
-        builder: (context, constraints) => constraints.maxWidth > 600
-            ? const ExpandedLayout()
-            : const CompactLayout(),
-      ));
+  Widget build(BuildContext context) =>
+      MaterialApp(theme: lightTheme, darkTheme: darkTheme, home: Login()
+          // LayoutBuilder(
+          //   builder: (context, constraints) => constraints.maxWidth > 600
+          //       ? const ExpandedLayout()
+          //       : const CompactLayout(),
+          // )
+          );
 }

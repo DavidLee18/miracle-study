@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miracle_study/post.dart';
+import 'package:miracle_study/stories.dart';
 
 class ExpandedLayout extends StatefulWidget {
   const ExpandedLayout({super.key});
@@ -20,6 +21,10 @@ class _ExpandedLayoutState extends State<ExpandedLayout> {
         ),
         body: Row(children: [
           NavigationRail(
+            leading: FloatingActionButton(
+              onPressed: () {},
+              child: const Icon(Icons.add),
+            ),
             destinations: const [
               NavigationRailDestination(
                   icon: Icon(Icons.home), label: Text("Home")),
@@ -34,7 +39,20 @@ class _ExpandedLayoutState extends State<ExpandedLayout> {
             labelType: NavigationRailLabelType.all,
             onDestinationSelected: (value) => setState(() => _index = value),
           ),
-          Center(child: Post())
+          const Spacer(),
+          Center(
+              child: SizedBox(
+            width: 500,
+            child: ListView.builder(itemBuilder: (c, i) {
+              switch (i) {
+                case 0:
+                  return const Stories();
+                default:
+                  return const Post();
+              }
+            }),
+          )),
+          const Spacer()
         ]),
       );
 }
