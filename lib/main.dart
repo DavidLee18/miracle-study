@@ -24,7 +24,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      MaterialApp(theme: lightTheme, darkTheme: darkTheme, home: Login()
+      MaterialApp(theme: lightTheme, darkTheme: darkTheme, home: LoginPage()
           // LayoutBuilder(
           //   builder: (context, constraints) => constraints.maxWidth > 600
           //       ? const ExpandedLayout()
