@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:miracle_study/feed.dart';
 import 'package:miracle_study/post.dart';
 import 'package:miracle_study/stories.dart';
 
@@ -43,14 +44,7 @@ class _ExpandedLayoutState extends State<ExpandedLayout> {
           Center(
               child: SizedBox(
             width: 500,
-            child: ListView.builder(itemBuilder: (c, i) {
-              switch (i) {
-                case 0:
-                  return const Stories();
-                default:
-                  return const Post();
-              }
-            }),
+            child: ListView(children: const [Stories(), Feed()]),
           )),
           const Spacer()
         ]),
