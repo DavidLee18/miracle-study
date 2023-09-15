@@ -5,7 +5,6 @@ import 'package:miracle_study/firebase_options.dart';
 import 'package:miracle_study/layout/compact_layout.dart';
 import 'package:miracle_study/layout/expanded_layout.dart';
 import 'package:miracle_study/login_page.dart';
-import 'package:miracle_study/signup_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,11 +31,6 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
         theme: lightTheme,
         darkTheme: darkTheme,
-        // home: LayoutBuilder(
-        //             builder: (context, constraints) => constraints.maxWidth > 600
-        //                 ? const ExpandedLayout()
-        //                 : const CompactLayout(),
-        //           ),
         home: StreamBuilder(
           stream: FirebaseAuth.instance.authStateChanges(),
           builder: (context, snapshot) {

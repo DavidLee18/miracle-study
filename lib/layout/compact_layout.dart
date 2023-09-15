@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:miracle_study/add_post_page.dart';
 import 'package:miracle_study/feed.dart';
-import 'package:miracle_study/post.dart';
 import 'package:miracle_study/stories.dart';
 
 class CompactLayout extends StatefulWidget {
