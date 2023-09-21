@@ -1,6 +1,7 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:miracle_study/main.dart';
 import 'package:miracle_study/pw_reset_bottom_sheet.dart';
 import 'package:miracle_study/signup_page.dart';
 
@@ -73,6 +74,7 @@ class _LoginPageState extends State<LoginPage> {
                         await FirebaseAuth.instance.signInWithEmailAndPassword(email: _email.text, password: _pw.text);
                         // TODO: route to posts page
                       } on FirebaseAuthException catch (e) {
+                        logger.e(e.message, error: e, stackTrace: e.stackTrace);
                         await showDialog(context: context, builder: (c) => AlertDialog(
                           content: Text(switch(e.code) {
                             "user-disabled" => "해당 사용자는 비활성화 상태입니다",

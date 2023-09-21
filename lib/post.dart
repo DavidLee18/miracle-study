@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:miracle_study/comments.dart';
 import 'package:miracle_study/like_animation.dart';
+import 'package:miracle_study/main.dart';
 import 'package:miracle_study/model/comment_model.dart';
 import 'package:miracle_study/model/post_model.dart';
 import 'package:miracle_study/simple_comment.dart';
@@ -31,6 +32,7 @@ class _PostState extends State<Post> {
   var _dateFormattable = false;
   var _isLikeAnimating = false;
   late final Stream<QuerySnapshot<Map<String, dynamic>>> _comments;
+  var _allComments = 0;
 
 
   @override
@@ -41,24 +43,36 @@ class _PostState extends State<Post> {
   }
 
   void _init() async {
-    final profileData = await FirebaseStorage.instance.ref("profiles/${widget.model.username}").getData();
-    if(mounted) { setState(() { _profilePicture = profileData; }); }
-    for (var ref in (await FirebaseStorage.instance.ref("posts/${widget.id}").listAll()).items) {
-      var data = await ref.getData();
-      if(mounted) { setState(() { _postPictures.add(data!); }); }
+    try {
+      final profileData = await FirebaseStorage.instance.ref("profiles/${widget.model.username}").getData();
+      if(mounted) { setState(() { _profilePicture = profileData; }); }
+      for (var ref in (await FirebaseStorage.instance.ref("posts/${widget.id}").listAll()).items) {
+        var data = await ref.getData();
+        if(mounted) { setState(() { _postPictures.add(data!); }); }
+      }
+      final currentUser = await FirebaseFirestore.instance.collection("users").where("uid", isEqualTo: FirebaseAuth.instance.currentUser!.uid).get();
+      if(mounted) {
+        setState(() { _currentUsername = currentUser.docs.single.id; });
+        setState(() { _liked = widget.model.likes.contains(_currentUsername); });
+      }
+      await initializeDateFormatting("ko_KR");
+      if(mounted) { setState(() { _dateFormattable = true; }); }
+      final allComments = await FirebaseFirestore.instance.collection("posts").doc(widget.id).collection("comments").count().get();
+      if(mounted) { setState(() { _allComments = allComments.count; }); }
+    } catch (e) {
+      logger.e(e.toString(), error: e);
     }
-    final currentUser = await FirebaseFirestore.instance.collection("users").where("uid", isEqualTo: FirebaseAuth.instance.currentUser!.uid).get();
-    if(mounted) {
-      setState(() { _currentUsername = currentUser.docs.single.id; });
-      setState(() { _liked = widget.model.likes.contains(_currentUsername); });
-    }
-    await initializeDateFormatting("ko_KR");
-    if(mounted) { setState(() { _dateFormattable = true; }); }
   }
 
   void _setLike(bool like) async {
+    var likes = widget.model.likes;
     if(_currentUsername != null){
-      await FirebaseFirestore.instance.collection("posts").doc(widget.id).update({ "likes": like ? (widget.model.likes..add(_currentUsername!)) : (widget.model.likes..remove(_currentUsername!)) });
+      if (likes.contains(_currentUsername!)) {
+        likes = like ? likes : (likes..remove(_currentUsername!));
+      } else {
+        likes = like ? (likes..add(_currentUsername!)) : likes;
+      }
+      await FirebaseFirestore.instance.collection("posts").doc(widget.id).update({ "likes": likes });
       setState(() { _liked = like; });
     }
   }
@@ -136,7 +150,23 @@ class _PostState extends State<Post> {
                 ),
                 const Spacer(),
                 IconButton(onPressed: widget.model.commentsEnabled ? () => showModalBottomSheet(context: context, builder: (context) => Comments(postId: widget.id)) : null, icon: const Icon(Icons.comment_outlined)),
-                const Spacer(flex: 20)
+                const Spacer(flex: 20),
+                _currentUsername != null && _currentUsername == widget.model.username ? IconButton(onPressed: () async {
+                  await showDialog(context: context, builder: (context) => AlertDialog(
+                    title: const Text("정말 삭제하시겠습니까?"),
+                    content: const Text("정말 이 게시물을 삭제하시겠습니끼? 이 작업은 돌이킬 수 없습니다."),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context), child: const Text("취소")),
+                      TextButton(onPressed: () async {
+                        await FirebaseFirestore.instance.collection("posts").doc(widget.id).delete();
+                        for (final ref in widget.model.picturesPath) {
+                          await FirebaseStorage.instance.ref(ref).delete();
+                        }
+                        Navigator.pop(context);
+                      }, child: const Text("삭제", style: TextStyle(color: Colors.red),))
+                    ],
+                  ),);
+                }, icon: const Icon(Icons.delete_outline)) : Container()
               ],
             ),
             widget.model.likes.isNotEmpty && widget.model.likesVisible ? Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text("좋아요 ${widget.model.likes.length}개"))
@@ -152,7 +182,7 @@ class _PostState extends State<Post> {
                 if(comments?.isNotEmpty ?? false) {
                   children.add(Skeletonizer(enabled: comments == null, child: TextButton(
                   onPressed: () => showModalBottomSheet(context: context, builder: (context) => Comments(postId: widget.id)),
-                  child: Text(comments != null ? "댓글 ${comments.length}개 모두 보기" : "댓글 ?개 모두 보기")
+                  child: Text(_allComments != 0 ? "댓글 $_allComments개 모두 보기" : "댓글 쓰기")
                   )));
                 }
                 return Skeletonizer(enabled: !snapshot.hasData, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: children)

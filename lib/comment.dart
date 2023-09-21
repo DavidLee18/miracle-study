@@ -56,19 +56,19 @@ class _CommentState extends State<Comment> {
   Widget build(BuildContext context) => Row(
     children: [
       Skeletonizer(enabled: _profilePicture == null, child: CircleAvatar(radius: 16, backgroundImage: _profilePicture != null ? MemoryImage(_profilePicture!) : null,)),
-      Column(children: [
+      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(widget.model.username, style: const TextStyle(fontWeight: FontWeight.bold))
           ),
           Skeletonizer(enabled: !_dateFormattable, child: Text(_dateFormattable ? DateFormat.MMMd("ko_KR").add_Hm().format(widget.model.when.toDate()) : "comment.when.toString()", style: const TextStyle(color: Colors.grey),))
         ]),
-        Text(widget.model.text),
-        Row(children: [
-          widget.model.likes.isNotEmpty ? Text("좋아요 ${widget.model.likes.length}개", style: const TextStyle(color: Colors.grey),) : Container(),
-          TextButton(onPressed: () async {}, child: const Text("답글 달기"))
-        ])
+        Container(width: 300, padding: EdgeInsets.symmetric(horizontal: 8), child: Text(widget.model.text)),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: widget.model.likes.isNotEmpty ? Text("좋아요 ${widget.model.likes.length}개", style: const TextStyle(color: Colors.grey),) : Container(),
+        )
       ]),
       IconButton(onPressed: () => _setLike(!_liked), icon: _liked ? const Icon(Icons.favorite, color: Colors.red,) : const Icon(Icons.favorite_outline))
     ],

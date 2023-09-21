@@ -43,6 +43,7 @@ class _CommentsState extends State<Comments> {
         return Skeletonizer(
           enabled: !snapshot.hasData,
           child: ListView.builder(
+            padding: EdgeInsets.symmetric(vertical: 10),
             itemCount: snapshot.data?.size ?? 5,
             itemBuilder: (context, index) => snapshot.hasData ? Comment(
               id: snapshot.data!.docs[index].id,
@@ -86,6 +87,8 @@ class _CommentsState extends State<Comments> {
               child: TextFormField(
                 controller: _input,
                 validator: (value) => value == null || value.isEmpty ? "댓글을 입력하세요" : null,
+                maxLength: 60,
+                maxLines: 3,
                 decoration: InputDecoration(border: const OutlineInputBorder(), suffix: IconButton(onPressed: () async {
                   if (_key.currentState!.validate()) {
                     final currentUsername = await FirebaseFirestore.instance.collection("users").where("uid", isEqualTo: FirebaseAuth.instance.currentUser!.uid).get();

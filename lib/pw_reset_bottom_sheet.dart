@@ -1,6 +1,7 @@
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:miracle_study/main.dart';
 
 class PasswordResetBottomSheet extends StatefulWidget {
   const PasswordResetBottomSheet({super.key});
@@ -47,6 +48,7 @@ class _PasswordResetBottomSheetState extends State<PasswordResetBottomSheet> {
                 try {
                   FirebaseAuth.instance.sendPasswordResetEmail(email: _email.text);
                 } on FirebaseAuthException catch (e) {
+                  logger.e(e.message, error: e, stackTrace: e.stackTrace);
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(switch(e.code) {

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:miracle_study/main.dart';
 import 'package:miracle_study/model/post_model.dart';
 
 class AddPostPage extends StatefulWidget {
@@ -37,6 +38,7 @@ class _AddPostPageState extends State<AddPostPage> {
         }
       }
     } on PlatformException catch (e) {
+      logger.e(e.message, error: e);
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("${e.message}")));
     }
   }
@@ -47,28 +49,32 @@ class _AddPostPageState extends State<AddPostPage> {
       title: const Text("새 게시물"),
       actions: [
         TextButton(onPressed: _datas.isEmpty ? null : () async {
-          setState(() { _loading = true; });
-          final uid = FirebaseAuth.instance.currentUser!.uid;
-          final user = FirebaseFirestore.instance.collection("users").where("uid", isEqualTo: uid);
-          final model = PostModel(
-            username: (await user.get()).docs.single.id,
-            description: _description.text.trim().isEmpty ? null : _description.text,
-            picturesPath: const [],
-            likes: const [],
-            commentsEnabled: _commentsEnabled,
-            likesVisible: _likesVisible,
-            when: Timestamp.now()
-          );
-          final docRef = await FirebaseFirestore.instance.collection("posts").add(model.toMap());
-          final ref = FirebaseStorage.instance.ref("posts/${docRef.id}");
-          List<String> pathes = [];
-          for (var i = 0; i < _datas.length; i++) {
-            final childRef = ref.child("$i");
-            await childRef.putData(_datas[i]);
-            pathes.add(childRef.fullPath);
+          try {
+            setState(() { _loading = true; });
+            final uid = FirebaseAuth.instance.currentUser!.uid;
+            final user = FirebaseFirestore.instance.collection("users").where("uid", isEqualTo: uid);
+            final model = PostModel(
+              username: (await user.get()).docs.single.id,
+              description: _description.text.trim().isEmpty ? null : _description.text,
+              picturesPath: const [],
+              likes: const [],
+              commentsEnabled: _commentsEnabled,
+              likesVisible: _likesVisible,
+              when: Timestamp.now()
+            );
+            final docRef = await FirebaseFirestore.instance.collection("posts").add(model.toMap());
+            final ref = FirebaseStorage.instance.ref("posts/${docRef.id}");
+            List<String> pathes = [];
+            for (var i = 0; i < _datas.length; i++) {
+              final childRef = ref.child("$i");
+              await childRef.putData(_datas[i]);
+              pathes.add(childRef.fullPath);
+            }
+            await docRef.update({ "picturesPath": pathes });
+            Navigator.pop(context);
+          } catch (e) {
+            logger.e(e.toString(), error: e);
           }
-          await docRef.update({ "picturesPath": pathes });
-          Navigator.pop(context);
         }, child: const Text("게시"))
       ],
     ),

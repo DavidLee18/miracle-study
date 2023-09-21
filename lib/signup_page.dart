@@ -1,13 +1,11 @@
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:miracle_study/main.dart';
 import 'package:miracle_study/model/user_model.dart';
 
 class SignupPage extends StatefulWidget {
@@ -175,6 +173,7 @@ class _SignupPageState extends State<SignupPage> {
                           Navigator.of(context).pop();
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("회원가입이 완료되었습니다. 로그인해 주세요")));
                         } on FirebaseAuthException catch(e) {
+                          logger.e(e.message, error: e, stackTrace: e.stackTrace);
                           await showDialog(context: context, builder: (c) => AlertDialog(
                             content: Text(switch (e.code) {
                               "email-already-in-use" => "이미 사용중인 e-mail입니다. 다른 e-mail을 사용해 주세요",

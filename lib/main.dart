@@ -5,6 +5,9 @@ import 'package:miracle_study/firebase_options.dart';
 import 'package:miracle_study/layout/compact_layout.dart';
 import 'package:miracle_study/layout/expanded_layout.dart';
 import 'package:miracle_study/login_page.dart';
+import 'package:logger/logger.dart';
+
+var logger = Logger();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
