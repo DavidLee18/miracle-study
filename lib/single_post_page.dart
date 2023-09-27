@@ -15,6 +15,6 @@ class SinglePostPage extends StatelessWidget {
         icon: const Icon(Icons.arrow_back_ios)
       ),
     ),
-    body: Post(id: id, model: model),
+    body: SingleChildScrollView(child: Post(id: id, model: model)),
   );
 }
