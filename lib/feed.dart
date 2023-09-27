@@ -25,12 +25,11 @@ class _FeedState extends State<Feed> {
     switch (snapshot.connectionState) {
       case ConnectionState.active:
         if(snapshot.hasData) {
-          return ConstrainedBox(
-            constraints: const BoxConstraints.tightFor(height: 500),
+          return Expanded(
             child: ListView.builder(
               itemCount: snapshot.data!.docs.length,
               itemBuilder: (context, index) => Post(id: snapshot.data!.docs[index].id, model: PostModel.fromFirestore(snapshot.data!.docs[index].data()),)
-            )
+            ),
           );
         } else if (snapshot.hasError) {
           return Center(child: Text("${snapshot.error}"));
